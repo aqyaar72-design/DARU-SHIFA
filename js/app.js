@@ -1,3 +1,25 @@
-const SUPABASE_URL='https://cvsvlnrikkocolipunru.supabase.co';const SUPABASE_KEY='sb_publishable_hlhh8l5Qk9HzubKN0QPVHg_QZHByQ-m';const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const WA='917981977002';
-function waLink(message='Asalaamu calaykum DARU-SHIFA, waxaan rabaa xog ku saabsan Ruqyada Quraanka iyo qorshayaasha.'){return `https://wa.me/${WA}?text=${encodeURIComponent(message)}`}
-document.addEventListener('DOMContentLoaded',async()=>{document.querySelectorAll('[data-wa]').forEach(e=>e.href=waLink(e.dataset.wa));const f=document.getElementById('waFloat');if(f)f.href=waLink();const {data:{user}}=await supabaseClient.auth.getUser();document.querySelectorAll('[data-auth-link]').forEach(e=>{if(user){e.textContent='Dashboard';e.href='dashboard.html'}});document.querySelector('.mobile-toggle')?.addEventListener('click',()=>document.querySelector('.links')?.classList.toggle('mobile-show'));});
+(() => {
+"use strict";
+const SUPABASE_URL="https://cvsvlnrikkocolipunru.supabase.co";
+const SUPABASE_KEY="sb_publishable_hlhh8l5Qk9HzubKN0QPVHg_QZHByQ-m";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+window.DARU_SUPABASE=supabaseClient;
+
+document.addEventListener("DOMContentLoaded",async()=>{
+  const menu=document.querySelector(".mobile-toggle");
+  const links=document.querySelector(".links");
+  if(menu&&links){
+    menu.addEventListener("click",()=>{
+      const open=links.classList.toggle("mobile-show");
+      menu.textContent=open?"✕":"☰";
+    });
+    links.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>links.classList.remove("mobile-show")));
+  }
+  const {data}=await supabaseClient.auth.getUser();
+  document.querySelectorAll("[data-auth-link]").forEach(a=>{
+    if(data.user){a.textContent="Dashboard";a.href="dashboard.html"}
+  });
+  const wa=document.querySelector("#waFloat");
+  if(wa) wa.href="https://wa.me/917981977002?text="+encodeURIComponent("Asalaamu calaykum DARU-SHIFA.");
+});
+})();

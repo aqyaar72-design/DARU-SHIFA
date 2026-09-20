@@ -1,9 +1,32 @@
-const SUPABASE_URL='https://cvsvlnrikkocolipunru.supabase.co';
-const SUPABASE_KEY='sb_publishable_hlhh8l5Qk9HzubKN0QPVHg_QZHByQ-m';
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const WA='917981977002';
-function showMsg(text,type='error'){const m=document.getElementById('msg');if(!m)return;m.textContent=text;m.className='message show '+type}
-const signupForm=document.getElementById('signupForm');
-if(signupForm){signupForm.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(signupForm);const name=fd.get('full_name').trim(),email=fd.get('email').trim(),phone=fd.get('phone').trim(),password=fd.get('password'),plan=Number(fd.get('plan_days')),start=fd.get('start_date'),time=fd.get('preferred_time');const prices={7:70,15:150,30:100};const btn=signupForm.querySelector('button');btn.disabled=true;btn.textContent='Fadlan sug...';const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name,phone,plan_days:plan,start_date:start,preferred_time:time}}});if(error){showMsg(error.message);btn.disabled=false;btn.textContent='Isdiiwaangeli oo WhatsApp Fur';return}const text=`Asalaamu calaykum DARU-SHIFA,%0A%0AWaxaan iska diiwaangeliyey Ruqyada Quraanka Online.%0A%0AMagac: ${encodeURIComponent(name)}%0ATelefoon: ${encodeURIComponent(phone)}%0AQorshe: ${plan} maalmood%0ALacagta qorshaha: $${prices[plan]}%0ATaariikhda bilaabashada: ${encodeURIComponent(start)}%0AWaqtiga: ${encodeURIComponent(time)}%0A%0AFadlan ii soo dir habka bixinta iyo tallaabada xigta.`;window.open(`https://wa.me/${WA}?text=${text}`,'_blank');showMsg('Waad isdiiwaangelisay. WhatsApp ayaa kuu furmay. Haddii email xaqiijin loo baahan yahay, marka hore xaqiiji email-kaaga, kadibna gal Dashboard-ka.','success');btn.textContent='Isdiiwaangelintu way dhammaatay';});}
-const loginForm=document.getElementById('loginForm');
-if(loginForm){loginForm.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(loginForm),btn=loginForm.querySelector('button');btn.disabled=true;btn.textContent='La galayaa...';const {error}=await supabaseClient.auth.signInWithPassword({email:fd.get('email'),password:fd.get('password')});if(error){showMsg('Gelitaanku wuu fashilmay. Hubi email-ka, furaha sirta iyo xaqiijinta email-ka.');btn.disabled=false;btn.textContent='Gal Dashboard';return}location.href='dashboard.html';});}
+(() => {
+const supabase=window.DARU_SUPABASE;
+const signup=document.getElementById("signupForm");
+const login=document.getElementById("loginForm");
+const msg=(t,ok=false)=>{const e=document.getElementById("msg");if(e){e.textContent=t;e.style.color=ok?"#0b6b47":"#a22525"}};
+
+if(signup) signup.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const fd=new FormData(signup);
+ const full_name=String(fd.get("full_name")||"").trim();
+ const phone=String(fd.get("phone")||"").trim();
+ const email=String(fd.get("email")||"").trim();
+ const password=String(fd.get("password")||"");
+ const plan_days=Number(fd.get("plan_days")||7);
+ if(password.length<6){msg("Password-ku ugu yaraan 6 xaraf ha noqdo.");return}
+ const {data,error}=await supabase.auth.signUp({email,password,options:{data:{full_name,phone,plan_days}}});
+ if(error){msg(error.message);return}
+ if(data.session){
+   location.href="dashboard.html";
+ }else{
+   msg("Akoonka waa la sameeyay. Haddii email confirmation uu ON yahay, xaqiiji email-kaaga kadibna gal.",true);
+ }
+});
+
+if(login) login.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const fd=new FormData(login);
+ const {error}=await supabase.auth.signInWithPassword({email:fd.get("email"),password:fd.get("password")});
+ if(error){msg("Email ama password-ka ayaa khaldan.");return}
+ location.href="dashboard.html";
+});
+})();
